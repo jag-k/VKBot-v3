@@ -102,3 +102,11 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+# secret files and dir
+.secret
+*.secret*
+*-secret*
+*.sec
+
+vk_config.v2.json
