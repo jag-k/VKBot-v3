@@ -7,8 +7,10 @@ class Bot:
     def __init__(self, api, event: Event):
         self.api, self.event = api, event,
         self.bot_string = "[id173996641|🐩 JksBot]: "
+        self.like_bot = True
 
-    def send_feedback(self, text: str, like_bot=True, *fwd_messages: int, **kwargs):
+    def send_feedback(self, text: str, like_bot: bool=None, *fwd_messages: int, **kwargs):
+        like_bot = self.like_bot if like_bot is None else like_bot
         return self.api.messages.send(**kwargs,
                                       peer_id=self.event.peer_id,
                                       message=(self.bot_string if like_bot else '') + text,

@@ -15,7 +15,7 @@ def get_help(bot: Bot):
             '; '.join(func_data['commands']),
             " ⚠ Комманда не работает! ⚠" if any(i in func_off for i in func_data['commands']) else '')
 
-        d = func_data['doc'].split('\n')
+        d = func_data['doc'].split('\n') or ['']
         descrtiption, params = d[:1], d[1:]
         params, notes = params[:1], params[1:]
 
@@ -44,7 +44,7 @@ def get_help(bot: Bot):
     help_start = "Символ%s комманды по умолчанию: %s\n\n" % ("ы" if len(chars) > 1 else '',
                                                              '; '.join("%s (%scommand)" % (ch, ch) for ch in chars))
 
-    bot.send_feedback(help_start + '\n\n'.join(res))
+    return help_start + '\n\n'.join(res)
 
 
 @Command.add('с', 'c', "connect", permission=Permission.ALLOWED)
@@ -52,15 +52,15 @@ def connect(bot: Bot):
     """проверка соединения
     """
 
-    bot.send_feedback("Connection success!")
+    return "Connection success!"
 
 
 @Command.add("id")
 def get_id(bot: Bot):
     """Можно узнать свой User ID"""
-    print(bot.event.user_id)
+    # print(bot.event.user_id)
     u_id = bot.event.user_id
 
-    r = "%s, Ваш ID: %d\n\n(https://vk.com/id%d)" % (bot.reference(), u_id, u_id)
+    r = "%s, Ваш ID: %d\n\nhttps://vk.com/id%d" % (bot.reference(), u_id, u_id)
     print(r)
-    bot.send_feedback(r)
+    return r

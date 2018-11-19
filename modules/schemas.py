@@ -4,7 +4,7 @@ from vk_api.longpoll import VkLongPoll, VkEventType
 from config import SETTINGS, Permission
 from modules.bot import Bot
 
-function = type(lambda: True)
+func_type = type(lambda: True)
 
 
 class Method:
@@ -12,8 +12,8 @@ class Method:
     methods_by_code = {}  # type: {int: [Method]}
 
     def __init__(self, *codes: int,
-                 func: function=None,
-                 requirement: function=None,
+                 func: func_type=None,
+                 requirement: func_type=None,
                  permission=Permission.EVERYONE):
         self.codes = codes
         for code in codes:
@@ -22,23 +22,26 @@ class Method:
             else:
                 self.methods_by_code[code].append(self)
 
-        self.func = func
+        self.func = None
+        self.set_func(func)
+
         self.req = (lambda event: True) if requirement is None else requirement
         self.permission = permission
 
-    def set_func(self, func: function):
+    def set_func(self, func: func_type):
         self.func = func
+        return func
 
     @classmethod
-    def add(cls, *codes: int, requirement: function=lambda event: True):
-        def decorate(func: function):
+    def add(cls, *codes: int, requirement: func_type=lambda event: True):
+        def decorate(func: func_type):
             return Method(*codes, func=func, requirement=requirement)
         return decorate
 
     @classmethod
     def event(cls, event: vk_api.longpoll.Event, api):
         if event.type in Method.methods_by_code:
-            for method in filter(lambda m: type(m.func) == function and
+            for method in filter(lambda m: type(m.func) == func_type and
                                            (Permission.have_access(m.permission, event.user_id) or
                                             event.from_me) and
                                            m.req(event),
@@ -46,13 +49,10 @@ class Method:
                 method.func(Bot(api, event))
 
 
-# print(SETTINGS['bot_settings']['command characters'])
-
-
 class Command(Method):
     commands = []
 
-    def __init__(self, *commands: str, func: function=None,
+    def __init__(self, *commands: str, func: func_type=None,
                  command_characters: str=SETTINGS['bot_settings']['command characters'],
                  permission=Permission.ALLOWED):
         self.chars = list(map(lambda x: x.strip(), command_characters.split(',')))
@@ -66,17 +66,32 @@ class Command(Method):
             permission=permission
         )
 
+    def set_func(self, func: func_type):
+        def decorate(bot: Bot):
+            bot.like_bot = True
+            res = func(bot)
+
+            if res:
+                if len(res) == 2 and type(res) is tuple:
+                    bot.like_bot = bool(res[1])
+                    res = res[0]
+                bot.send_feedback(res, bot.like_bot)
+        decorate.__doc__ = func.__doc__ or None
+        self.func = decorate
+        return decorate
+
     @classmethod
     def add(cls, *commands: str, command_characters: str=SETTINGS['bot_settings']['command characters'],
             permission=Permission.ALLOWED):
-        def decorate(func: function):
+        def decorate(func: func_type):
             return Command(*commands, func=func, command_characters=command_characters, permission=permission)
         return decorate
 
     @property
     def help(self):
         return {
-            "doc": self.func.__doc__.strip() if type(self.func) == function else None,  # type: str
+            "doc": self.func.__doc__.strip() if type(self.func) == func_type and
+                                                self.func.__doc__ is not None else None,  # type: str
             "commands": self.commands,  # type: List[str],
             "permission": self.permission
         }
