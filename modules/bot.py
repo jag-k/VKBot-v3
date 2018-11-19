@@ -1,12 +1,12 @@
 import math
-
 from vk_api.longpoll import Event
 
 
 class Bot:
+    bot_string = "[id173996641|🐩 JksBot]: "
+
     def __init__(self, api, event: Event):
-        self.api, self.event = api, event,
-        self.bot_string = "[id173996641|🐩 JksBot]: "
+        self.api, self.event = api, event
         self.like_bot = True
 
     def send_feedback(self, text: str, like_bot: bool=None, *fwd_messages: int, **kwargs):
