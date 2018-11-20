@@ -5,6 +5,9 @@ from vk_api.longpoll import Event
 class Bot:
     bot_string = "[id173996641|🐩 JksBot]: "
 
+    # Bot returns
+    class StopBot: pass
+
     def __init__(self, api, event: Event):
         self.api, self.event = api, event
         self.like_bot = True
@@ -44,3 +47,4 @@ class Bot:
         if u_id is None:
             u_id = self.event.user_id
         return '[id%s|%s]' % (int(math.fabs(u_id)), self.name(u_id, name_case, full))
+

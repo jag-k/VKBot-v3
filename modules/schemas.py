@@ -41,12 +41,12 @@ class Method:
     @classmethod
     def event(cls, event: vk_api.longpoll.Event, api):
         if event.type in Method.methods_by_code:
-            for method in filter(lambda m: type(m.func) == func_type and
+            return [method.func(Bot(api, event)) for method in filter(lambda m: type(m.func) == func_type and
                                            (Permission.have_access(m.permission, event.user_id) or
                                             event.from_me) and
                                            m.req(event),
-                                 Method.methods_by_code[event.type]):
-                method.func(Bot(api, event))
+                                 Method.methods_by_code[event.type])]
+        return []
 
 
 class Command(Method):
@@ -69,13 +69,15 @@ class Command(Method):
     def set_func(self, func: func_type):
         def decorate(bot: Bot):
             bot.like_bot = True
-            res = func(bot)
+            res = raw_res = func(bot)
 
             if res:
-                if len(res) == 2 and type(res) is tuple:
+                if type(res) is tuple and len(res) == 2:
                     bot.like_bot = bool(res[1])
                     res = res[0]
                 bot.send_feedback(res, bot.like_bot)
+            return raw_res
+
         decorate.__doc__ = func.__doc__ or None
         self.func = decorate
         return decorate

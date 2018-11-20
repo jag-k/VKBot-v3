@@ -64,3 +64,14 @@ def get_id(bot: Bot):
     r = "%s, Ваш ID: %d\n\nhttps://vk.com/id%d" % (bot.reference(), u_id, u_id)
     print(r)
     return r
+
+
+@Command.add("stop", permission=Permission.ADMIN)
+def stop(bot: Bot):
+    """Останавливает Бота"""
+
+    bot.send_feedback("Бот остановлен")
+    return bot.StopBot  # FIXME: Доделать остановку бота с комманды
+
+
+# TODO: Сделать следующие комманды: list (список людей с их привелегиями), status (проверка своего статуса), add (добавить человека в список к "админам")

@@ -1,7 +1,7 @@
 import sys
+import traceback
 
 import modules
-
 from modules.auth import api, session, user_id
 from modules.bot import Bot
 from modules.schemas import Method
@@ -16,13 +16,23 @@ api.messages.send(message=Bot.bot_string + "Бот запущен", user_id=user
 try:
     for event in longpoll.listen():
         try:
-            Method.event(event, api)
-        except Exception as err:
+            m = Method.event(event, api)
+            if Bot.StopBot in m:
+                raise SystemExit
+
+        except BaseException as err:
+            print('\n')
+            traceback.print_exc()
             error_msg = "ERROR (%s): %s" % (type(err).__name__, err)
-            print(err, file=sys.stderr)
             api.messages.send(message=Bot.bot_string + error_msg, user_id=user_id)
+
+    raise SystemExit
 except ConnectionError:
     print("CONNECTION ERROR", file=sys.stderr)
 
-api.messages.send(message=Bot.bot_string + "Бот остановлен", user_id=user_id)
-print("Bot Stopped")
+except KeyboardInterrupt or SystemExit:
+    print("System Exit")
+
+finally:
+    api.messages.send(message=Bot.bot_string + "Бот остановлен", user_id=user_id)
+    print("Bot Stopped")
