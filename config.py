@@ -16,7 +16,7 @@ SECRET = {}
 for key in secret:
     SECRET[key] = dict(secret[key])
 
-vk_data = SECRET['vk_data']
+vk_data = SECRET.get('vk_data')
 
 
 class Permission:
