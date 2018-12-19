@@ -1,3 +1,4 @@
+import sys
 from typing import List
 import vk_api
 from vk_api.longpoll import VkLongPoll, VkEventType
@@ -41,11 +42,18 @@ class Method:
     @classmethod
     def event(cls, event: vk_api.longpoll.Event, api):
         if event.type in Method.methods_by_code:
-            return [method.func(Bot(api, event)) for method in filter(lambda m: type(m.func) == func_type and
-                                           (Permission.have_access(m.permission, event.user_id) or
-                                            event.from_me) and
-                                           m.req(event),
-                                 Method.methods_by_code[event.type])]
+            return [
+                method.func(Bot(api, event))
+
+                for method in filter(
+                    lambda m: type(m.func) == func_type and
+                              (
+                                      Permission.have_access(m.permission, event.user_id) or
+                                      event.from_me
+                              ) and m.req(event),
+                    Method.methods_by_code[event.type]
+                )
+            ]
         return []
 
 
@@ -75,6 +83,10 @@ class Command(Method):
                 if type(res) is tuple and len(res) == 2:
                     bot.like_bot = bool(res[1])
                     res = res[0]
+                elif res and bot.BotReturns in getattr(res, "__bases__", []):
+                    if res == bot.StopBot:
+                        raise bot.StopBot
+
                 bot.send_feedback(res, bot.like_bot)
             return raw_res
 

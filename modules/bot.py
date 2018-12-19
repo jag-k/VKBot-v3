@@ -6,7 +6,9 @@ class Bot:
     bot_string = "[id173996641|🐩 JksBot]: "
 
     # Bot returns
-    class StopBot: pass
+    class BotReturns: pass
+
+    class StopBot(BotReturns, Exception): pass
 
     def __init__(self, api, event: Event):
         self.api, self.event = api, event

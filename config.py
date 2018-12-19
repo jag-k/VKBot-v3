@@ -51,9 +51,9 @@ class Permission:
     def str_level(cls, access_level):
         return {
             cls.EVERYONE: "Любой пользователь",
-            cls.ADMIN: "\"Хозяин\" бота",
+            cls.ADMIN: "Владелец бота",
             cls.ADMINS: "Адмнинистраторы (приближённые)",
-            cls.ALLOWED: "Некоторые разрешённые пользователи",
+            cls.ALLOWED: "Некоторые пользователи",
             cls.NO_ACCESS: "Нет доступа"
         }.get(access_level, "Неизвестно")
 

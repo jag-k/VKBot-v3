@@ -20,13 +20,16 @@ try:
             if Bot.StopBot in m:
                 raise SystemExit
 
+        except Bot.StopBot:
+            print("Admin stopped the bot", file=sys.stderr)
+            break
+
         except BaseException as err:
             print('\n')
             traceback.print_exc()
             error_msg = "ERROR (%s): %s" % (type(err).__name__, err)
             api.messages.send(message=Bot.bot_string + error_msg, user_id=user_id)
 
-    raise SystemExit
 except ConnectionError:
     print("CONNECTION ERROR", file=sys.stderr)
 
@@ -34,5 +37,5 @@ except KeyboardInterrupt or SystemExit:
     print("System Exit")
 
 finally:
-    api.messages.send(message=Bot.bot_string + "Бот остановлен", user_id=user_id)
-    print("Bot Stopped")
+    api.messages.send(message=Bot.bot_string + "Бот остановлен (финальная отправка в лс)", user_id=user_id)
+    print("Bot Stopped", file=sys.stderr)
